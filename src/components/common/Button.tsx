@@ -6,7 +6,7 @@ const variantTypes = {
     "bg-[#534B45] text-white border-transparent hover:bg-[#CCCAC8]/90 transition-colors",
   secondary:
     "bg-[#fff] text-color-text-primary border-[1px] hover:bg-[#4D99CE]/10 transition-colors",
-  link: "bg-transparent text-[#4D99CE] border-transparent hover:bg-transparent md:px-0",
+  link: "bg-transparent text-[#CCCAC8/90] border-transparent hover:bg-transparent md:px-0",
   error:
     "bg-[#EB001B] text-white border-transparent hover:bg-[#EB001B]/80 transition-colors ",
 };
@@ -51,19 +51,17 @@ export default function Button({
   );
 
   return (
-    
-      <button
+    <button
       type="button"
       onClick={() => {
-          if (!disabled && !loading && onClick) {
+        if (!disabled && !loading && onClick) {
           onClick();
-          }
+        }
       }}
       className={style}
       disabled={disabled || loading}
-      >
+    >
       {children}
-      </button>
-    
-  );
+    </button>
+  );
 }
