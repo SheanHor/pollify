@@ -8,7 +8,8 @@ import {
   EmailSignupSchema,
   emailSignupSchema,
 } from "@/lib/api/auth/emailSignUp.z";
-import { signup } from "@/lib/api/auth";
+import { googleLogin, signup } from "@/lib/api/auth";
+import { FcGoogle } from "react-icons/fc";
 
 const SignUpForm = () => {
   const {
@@ -21,11 +22,15 @@ const SignUpForm = () => {
 
   const onSubmit: SubmitHandler<EmailSignupSchema> = async (data) => {
     try {
-      // console.log("data", data);
       await signup(data.emailAddress, data.password);
     } catch (error) {
       console.log("Fail to Sign Up");
     }
+  };
+
+  // function handle google login/signup (if account existed, login , else signup)
+  const handleGoogleLogin = async () => {
+    await googleLogin();
   };
 
   return (
@@ -52,10 +57,21 @@ const SignUpForm = () => {
 
       {/* Button */}
       <div className="mt-5">
-        <Button isFull onClick={handleSubmit(onSubmit)}>
+        <Button size="small" isFull onClick={handleSubmit(onSubmit)}>
           Sign Up
         </Button>
       </div>
+
+      {/* Google Signup */}
+      <Button
+        variant="secondary"
+        size="medium"
+        className="w-[250px] mt-4"
+        onClick={handleGoogleLogin}
+      >
+        <FcGoogle />
+        <p className="text-sm font-medium">Continue with Google</p>
+      </Button>
     </div>
   );
 };

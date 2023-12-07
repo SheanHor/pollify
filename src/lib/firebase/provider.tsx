@@ -65,14 +65,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       }}
     >
       <div className="relative">
-        {loading && (
+        {loading ? (
           <div className="absolute left-0 top-0 z-10 flex min-h-screen w-full items-center justify-center bg-white">
             <div className="w-full max-w-xl md:ml-20 flex justify-center items-center">
               <Spinner className="text-blox-blue" />
             </div>
           </div>
+        ) : (
+          <>{children}</>
         )}
-        {children}
       </div>
     </AuthContext.Provider>
   );

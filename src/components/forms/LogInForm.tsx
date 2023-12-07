@@ -8,7 +8,8 @@ import {
   emailLoginSchema,
 } from "@/lib/api/auth/emailLogIn.z";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { login } from "@/lib/api/auth";
+import { googleLogin, login } from "@/lib/api/auth";
+import { FcGoogle } from "react-icons/fc";
 
 const LogInForm = () => {
   const {
@@ -21,12 +22,17 @@ const LogInForm = () => {
 
   const onSubmit: SubmitHandler<EmailLoginSchema> = async (data) => {
     try {
-      // console.log("data", data);
       await login(data.emailAddress, data.password);
     } catch (error) {
       console.log("Fail to Log in");
     }
   };
+
+  // function handle google login/signup (if account existed, login , else signup)
+  const handleGoogleLogin = async () => {
+    await googleLogin();
+  };
+
   return (
     <div className="w-[250px]">
       {/* Email Input */}
@@ -51,10 +57,21 @@ const LogInForm = () => {
 
       {/* Button */}
       <div className="mt-5">
-        <Button isFull onClick={handleSubmit(onSubmit)}>
+        <Button size="small" isFull onClick={handleSubmit(onSubmit)}>
           Log in
         </Button>
       </div>
+
+      {/* Google Login */}
+      <Button
+        variant="secondary"
+        size="medium"
+        className="w-[250px] mt-4"
+        onClick={handleGoogleLogin}
+      >
+        <FcGoogle />
+        <p className="text-sm font-medium">Continue with Google</p>
+      </Button>
     </div>
   );
 };

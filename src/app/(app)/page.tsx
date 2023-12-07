@@ -11,6 +11,7 @@ const HomePage = () => {
   return (
     <main className="p-4">
       <p>Home page</p>
+      <p>Welcome back: {user?.displayName}</p>
       <p>Welcome back: {user?.email}</p>
 
       <Button variant="error" size="small" onClick={logout}>
