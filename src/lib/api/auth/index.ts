@@ -5,8 +5,11 @@ import { addUser } from "../users";
 
 // Email signup
 export const signup = async(email:string, password:string, username:string) => {
-    return createUserWithEmailAndPassword(auth, email, password), 
-    addUser(email,username);
+    
+    const result = await createUserWithEmailAndPassword(auth, email, password)
+
+     // (email, username, userId)
+    addUser(email, username, result.user.uid);
 }
 
 // Email login
@@ -21,8 +24,9 @@ export const googleLogin = async() => {
     return signInWithPopup(auth, provider)
     .then((result) => {
         const user = result.user
-        // @ts-ignore
-        addUser(user?.email, user?.displayName);
+        
+        // (email, username, userId, isGoogle)
+        addUser(user.email, user.displayName, user.uid, true);
     })
     .catch((error) => {
      console.log("error: ", error)

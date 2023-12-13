@@ -7,8 +7,6 @@ import { FaPlus } from "react-icons/fa";
 import React from "react";
 
 const HomePage = () => {
-  const { user } = useAuth();
-  console.log("user", user);
   return (
     <main className="bg-[#7088BB] min-h-screen">
       <div className="p-4 max-w-[500px] mx-auto">

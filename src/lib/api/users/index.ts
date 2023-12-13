@@ -1,14 +1,17 @@
 import { ref, set, getDatabase } from "firebase/database";
-import { v4 as uuidv4 } from 'uuid';
 
-export const addUser = async ( email:string, username:string) => {
 
-    const newUserId = uuidv4()
+export const addUser = async (
+    email:string | null, 
+    username:string | null, 
+    userId: string, 
+    isGoogle?: boolean
+  ) => {
 
     const db = getDatabase()
 
-    set(ref(db, 'users/' + newUserId), {
-      username: username,
+    set(ref(db, 'users/' + userId), {
+      username: isGoogle ? username?.replace(/\s/g, '').toLowerCase() :username,
       email: email
     });
   
