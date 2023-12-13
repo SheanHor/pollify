@@ -1,9 +1,15 @@
-import { getDatabase, ref, set } from "firebase/database";
+import { ref, set, getDatabase } from "firebase/database";
+import { v4 as uuidv4 } from 'uuid';
 
-export const addUser = (userId:string, email:string, username:string) => {
-    const db = getDatabase();
-    set(ref(db, 'users/' + userId), {
-    username: username,
-    email: email
-  });
+export const addUser = async ( email:string, username:string) => {
+
+    const newUserId = uuidv4()
+
+    const db = getDatabase()
+
+    set(ref(db, 'users/' + newUserId), {
+      username: username,
+      email: email
+    });
+  
 }

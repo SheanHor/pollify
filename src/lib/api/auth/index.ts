@@ -1,12 +1,12 @@
 import { auth } from "@/lib/firebase/firebase"
 import {GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut} from "firebase/auth"
 import { addUser } from "../users";
-import { v4 as uuidv4 } from 'uuid';
+
 
 // Email signup
-export const signup = async(email:string, password:string, userName:string) => {
+export const signup = async(email:string, password:string, username:string) => {
     return createUserWithEmailAndPassword(auth, email, password), 
-    addUser(uuidv4(),email,userName);
+    addUser(email,username);
 }
 
 // Email login
@@ -17,10 +17,16 @@ export const login = async(email:string, password:string) => {
 // Google login/signup (if account existed, login , else signup)
 export const googleLogin = async() => {
     const provider = new GoogleAuthProvider();
+
     return signInWithPopup(auth, provider)
+    .then((result) => {
+        const user = result.user
+        // @ts-ignore
+        addUser(user?.email, user?.displayName);
+    })
     .catch((error) => {
      console.log("error: ", error)
-    });
+    })
 } 
 
 // Logout
