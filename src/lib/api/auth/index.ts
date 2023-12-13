@@ -1,9 +1,12 @@
 import { auth } from "@/lib/firebase/firebase"
 import {GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut} from "firebase/auth"
+import { addUser } from "../users";
+import { v4 as uuidv4 } from 'uuid';
 
 // Email signup
-export const signup = async(email:string, password:string) => {
-    return createUserWithEmailAndPassword(auth, email, password)
+export const signup = async(email:string, password:string, userName:string) => {
+    return createUserWithEmailAndPassword(auth, email, password), 
+    addUser(uuidv4(),email,userName);
 }
 
 // Email login

@@ -15,6 +15,7 @@ const SignUpForm = () => {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<EmailSignupSchema>({
     resolver: zodResolver(emailSignupSchema),
@@ -22,7 +23,7 @@ const SignUpForm = () => {
 
   const onSubmit: SubmitHandler<EmailSignupSchema> = async (data) => {
     try {
-      await signup(data.emailAddress, data.password);
+      await signup(data.emailAddress, data.password, data.userName);
     } catch (error) {
       console.log("Fail to Sign Up");
     }
@@ -41,6 +42,16 @@ const SignUpForm = () => {
         {errors.emailAddress && (
           <p className="pt-1 text-sm text-red-800 font-medium">
             {errors.emailAddress?.message}
+          </p>
+        )}
+      </div>
+
+      {/* UserName Input */}
+      <div className="my-5">
+        <Input label="Username" {...register("userName")} />
+        {errors.userName && (
+          <p className="pt-1 text-sm text-red-800 font-medium">
+            {errors.userName?.message}
           </p>
         )}
       </div>
