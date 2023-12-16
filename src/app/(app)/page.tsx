@@ -9,6 +9,7 @@ import { addPoll, getAllPolls } from "@/lib/api/polls";
 import ModalAddNewPoll from "@/components/modals/ModalAddNewPoll";
 import { useRouter } from "next/navigation";
 import { PollType } from "@/lib/types";
+import Spinner from "@/components/common/Spinner";
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -17,6 +18,8 @@ const HomePage = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [question, setQuestion] = useState<string>("");
   const [polls, setPolls] = useState<any>([]);
+
+  const [loading, setLoading] = useState<boolean>(true);
 
   const handleAddNewPoll = async () => {
     const result = await addPoll(user?.uid, question);
@@ -29,8 +32,12 @@ const HomePage = () => {
   useEffect(() => {
     if (user) {
       const result = getAllPolls(user.uid);
-      setPolls(result);
-      console.log(result, typeof result);
+
+      result.then((res: any) => {
+        const data = Object.values(res);
+        setPolls(data);
+        setLoading(false);
+      });
     }
   }, [user]);
 
@@ -42,13 +49,23 @@ const HomePage = () => {
         </h1>
 
         <AddNewPollButton setShowModal={setShowModal} />
-        {polls.length > 0 ? (
-          polls?.map((poll: PollType) => (
-            <div key={poll.uid}>{poll.question}</div>
-          ))
+
+        {loading ? (
+          <div className="mt-4 ml-4">
+            <Spinner />
+          </div>
         ) : (
-          <p>No Post Yet</p>
+          <>
+            {polls?.length > 0 ? (
+              polls?.map((poll: PollType) => (
+                <div key={poll.uid}>{poll.question}</div>
+              ))
+            ) : (
+              <p>No Post Yet</p>
+            )}
+          </>
         )}
+
         <ModalAddNewPoll
           visible={showModal}
           onCancel={() => setShowModal(false)}
