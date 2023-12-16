@@ -4,10 +4,11 @@ import Button from "@/components/common/Button";
 import { logout } from "@/lib/api/auth";
 import { useAuth } from "@/lib/firebase/provider";
 import { FaPlus } from "react-icons/fa";
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { addPoll } from "@/lib/api/polls";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { addPoll, getAllPolls } from "@/lib/api/polls";
 import ModalAddNewPoll from "@/components/modals/ModalAddNewPoll";
 import { useRouter } from "next/navigation";
+import { PollType } from "@/lib/types";
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ const HomePage = () => {
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [question, setQuestion] = useState<string>("");
+  const [polls, setPolls] = useState<any>([]);
 
   const handleAddNewPoll = async () => {
     const result = await addPoll(user?.uid, question);
@@ -24,7 +26,13 @@ const HomePage = () => {
     router.push(`/questions/${result.pollId}`);
   };
 
-  console.log(user);
+  useEffect(() => {
+    if (user) {
+      const result = getAllPolls(user.uid);
+      setPolls(result);
+      console.log(result, typeof result);
+    }
+  }, [user]);
 
   return (
     <main className="bg-[#7088BB] min-h-screen">
@@ -34,7 +42,13 @@ const HomePage = () => {
         </h1>
 
         <AddNewPollButton setShowModal={setShowModal} />
-
+        {polls.length > 0 ? (
+          polls?.map((poll: PollType) => (
+            <div key={poll.uid}>{poll.question}</div>
+          ))
+        ) : (
+          <p>No Post Yet</p>
+        )}
         <ModalAddNewPoll
           visible={showModal}
           onCancel={() => setShowModal(false)}

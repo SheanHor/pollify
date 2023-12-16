@@ -5,6 +5,7 @@ export type UserType = {
 } 
 
 export type PollType = {
+    uid : string,
     question: string,
     ownerId : string,
     editable : boolean,
