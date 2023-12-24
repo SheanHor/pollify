@@ -10,6 +10,7 @@ import ModalAddNewPoll from "@/components/modals/ModalAddNewPoll";
 import { useRouter } from "next/navigation";
 import { PollType } from "@/lib/types";
 import Spinner from "@/components/common/Spinner";
+import Link from "next/link";
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -22,11 +23,15 @@ const HomePage = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   const handleAddNewPoll = async () => {
-    const result = await addPoll(user?.uid, question);
+    try {
+      const result = await addPoll(user?.uid, question);
+      setShowModal(false);
 
-    setShowModal(false);
-
-    router.push(`/questions/${result.pollId}`);
+      // redirect to question page
+      router.push(`/questions/${result.pollId}`);
+    } catch (error) {
+      console.log("An error occured.", error);
+    }
   };
 
   useEffect(() => {
@@ -55,15 +60,7 @@ const HomePage = () => {
             <Spinner />
           </div>
         ) : (
-          <>
-            {polls?.length > 0 ? (
-              polls?.map((poll: PollType) => (
-                <div key={poll.uid}>{poll.question}</div>
-              ))
-            ) : (
-              <p>No Post Yet</p>
-            )}
-          </>
+          <PollCards polls={polls} />
         )}
 
         <ModalAddNewPoll
@@ -100,5 +97,29 @@ const AddNewPollButton = ({
         <FaPlus />
       </div>
     </div>
+  );
+};
+
+// Poll Cards
+const PollCards = ({ polls }: { polls: PollType[] }) => {
+  return (
+    <>
+      {polls?.length > 0 ? (
+        polls?.map((poll: PollType) => <PollCard key={poll.uid} poll={poll} />)
+      ) : (
+        <p>No Post Yet</p>
+      )}
+    </>
+  );
+};
+
+// Poll card
+const PollCard = ({ poll }: { poll: PollType }) => {
+  return (
+    <Link key={poll.uid} href={`questions/${poll.uid}`}>
+      <div className="my-4 p-4 bg-white rounded-md cursor-pointer">
+        <p>{poll.question}</p>
+      </div>
+    </Link>
   );
 };

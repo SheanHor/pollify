@@ -4,6 +4,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -15,12 +16,16 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   authenticating: boolean;
+  refreshAuth: (firebaseUser: User) => Promise<void>;
+  refreshToken: (firebaseUser: User) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   authenticating: true,
+  refreshAuth: async () => {},
+  refreshToken: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -30,6 +35,37 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [authenticating, setAuthenticating] = useState(true);
 
+  // refresh token
+  const refreshToken = async (user: User) => {
+    await user.getIdToken(true);
+    await user.reload();
+  };
+
+  // refrest auth (use case: update user's profile etc)
+  const refreshAuth = useCallback(async (firebaseUser: User) => {
+    try {
+      if (firebaseUser) {
+        const { claims } = await firebaseUser.getIdTokenResult(true);
+        if (claims.verified) {
+          setUser(firebaseUser);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      doneAuthenticating();
+    }
+  }, []);
+
+  // done authenticating
+  const doneAuthenticating = () => {
+    setAuthenticating(false);
+    return setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
+
+  // check firebaseUser initially
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -38,7 +74,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setLoading(true);
         setUser(null);
-
         timeout = doneAuthenticating();
       }
     });
@@ -49,12 +84,18 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const doneAuthenticating = () => {
-    setAuthenticating(false);
-    return setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  };
+  // check firebaseUser when "user" changed / "refreshAuth" triggered
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (user) {
+      if (user.emailVerified) {
+        refreshAuth(user);
+      } else {
+        timeout = doneAuthenticating();
+      }
+    }
+    return () => timeout && clearTimeout(timeout);
+  }, [user, refreshAuth]);
 
   return (
     <AuthContext.Provider
@@ -62,6 +103,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         loading,
         authenticating,
+        refreshAuth,
+        refreshToken,
       }}
     >
       <div className="relative">

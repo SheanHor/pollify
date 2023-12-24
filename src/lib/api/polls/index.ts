@@ -31,24 +31,18 @@ export const addPoll = async (userId?: string, question?: string) => {
   return { pollId };
 };
 
-// Get current poll
-export const getPoll = (pollId: string) => {
+// Get current poll (real-time listener)
+export const getPoll = async (
+  pollId: string,
+  onDataChange: (data: PollType) => void
+) => {
   const db = getDatabase();
   const pollRef = ref(db, `polls/${pollId}`);
 
-  let data: PollType = {
-    uid: pollId,
-    question: "",
-    ownerId: "",
-    editable: false,
-    expiredTime: new Date(),
-  };
-
   onValue(pollRef, (snapshot) => {
-    data = snapshot.val();
+    const data = snapshot.val();
+    onDataChange(data);
   });
-
-  return data;
 };
 
 // Get all polls
@@ -62,7 +56,7 @@ export const getAllPolls = async (userId: string) => {
     equalTo(userId)
   );
 
-  let data: any = [];
+  let data: PollType[] = [];
 
   await get(userPollsQuery).then((snapshot) => {
     if (snapshot.exists()) {
@@ -73,7 +67,7 @@ export const getAllPolls = async (userId: string) => {
   return data;
 };
 
-// Add option
+// TODO: Add option
 export const addOption = async (pollId: string, option: string) => {
   const db = getDatabase();
   const pollsRef = ref(db, `polls/${pollId}`);
